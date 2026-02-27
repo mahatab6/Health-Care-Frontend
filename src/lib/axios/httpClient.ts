@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-const API_BASE_URL= process.env.NEXT_pUBLIC_API_BASE_URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-if(!API_BASE_URL) {
-    throw new Error("Base url not defined")
+if (!API_BASE_URL) {
+  throw new Error("Base url not defined")
 }
 
 const axiosInstance = () => {
@@ -76,7 +76,7 @@ const httpPatch = async (endpoint:string, data: unknown, options?: ApiRequestOpt
 
 const httpDelete = async (endpoint:string, data: unknown, options?: ApiRequestOptions) => {
     try {
-        const response = await axiosInstance().deljete(endpoint, {
+        const response = await axiosInstance().delete(endpoint, {
             params: options?.params,
             headers: options?.headers,
         });
