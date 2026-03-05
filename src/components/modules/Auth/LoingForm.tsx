@@ -16,8 +16,7 @@ import {
 } from "@/components/ui/card";
 import { ILoginPayload, loginZodSchema } from "@/zod/auth.validation";
 import { useForm } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Eye, EyeOff } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -26,10 +25,10 @@ interface LoginFormProps {
 }
 
 const LoingForm = ({redirectPath} : LoginFormProps) => {
-  const queryClient = useQueryClient();
+  
 
   const [serverError, setServerError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
+
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (payload: ILoginPayload) => LoginAction(payload, redirectPath),
@@ -45,7 +44,7 @@ const LoingForm = ({redirectPath} : LoginFormProps) => {
       try {
         const result = (await mutateAsync(value)) as any;
         if (result.success) {
-          setServerError(result.message || "Login failed");
+          setServerError(result.message || "Login success");
           return;
         }
       } catch (error: any) {
@@ -98,23 +97,8 @@ const LoingForm = ({redirectPath} : LoginFormProps) => {
               <AppField
                 field={field}
                 label="Password"
-                type={showPassword ? "text" : "password"}
+                type={"password"}
                 placeholder="Enter your password"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="cursor-pointer"
-                append={
-                  <Button
-                    onClick={() => setShowPassword((value) => !value)}
-                    variant={"ghost"}
-                    size={"icon"}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="size-4" aria-hidden="true" />
-                    ) : (
-                      <Eye className="size-4" aria-hidden="true" />
-                    )}
-                  </Button>
-                }
               />
             )}
           </form.Field>

@@ -6,24 +6,24 @@ import {
   isAuthRoute,
   UserRole,
 } from "./lib/authUtils";
-import { getNewTokensWithRefreshToken } from "./services/auth.services";
+import {
+  getNewTokensWithRefreshToken,
+  getUserInfo,
+} from "./services/auth.services";
 import { isTokenExpiringSoon } from "./lib/tokenUtils";
 
-
-async function refreshTokenMiddleware (refreshToken : string) : Promise<boolean>{
+async function refreshTokenMiddleware(refreshToken: string): Promise<boolean> {
   try {
     const refresh = await getNewTokensWithRefreshToken(refreshToken);
-    if(!refresh){
+    if (!refresh) {
       return false;
     }
     return true;
   } catch (error) {
-    console.error("Error refreshing token in middleware", error)
+    console.error("Error refreshing token in middleware", error);
     return false;
   }
 }
-
-
 
 export async function proxy(request: NextRequest) {
   try {
@@ -55,28 +55,32 @@ export async function proxy(request: NextRequest) {
 
     const isAuth = isAuthRoute(pathname);
 
-    if(isValidAccessToken && refreshToken && (await isTokenExpiringSoon(accessToken))){
+    if (
+      isValidAccessToken &&
+      refreshToken &&
+      (await isTokenExpiringSoon(accessToken))
+    ) {
       const requestHeaders = new Headers(request.headers);
 
       const response = NextResponse.next({
         request: {
-          headers : requestHeaders
-        }
-      })
+          headers: requestHeaders,
+        },
+      });
 
       try {
         const refreshed = await refreshTokenMiddleware(refreshToken);
-        
-        if(refreshed){
+
+        if (refreshed) {
           requestHeaders.set("x-token-refreshed", "1");
         }
-        
+
         return NextResponse.next({
           request: {
-            headers : requestHeaders
+            headers: requestHeaders,
           },
-          headers : response.headers
-        })
+          headers: response.headers,
+        });
       } catch (error) {
         console.error("Error refreshing token", error);
       }
@@ -89,6 +93,32 @@ export async function proxy(request: NextRequest) {
       );
     }
 
+    if (pathname === "/reset-password") {
+      const email = request.nextUrl.searchParams.get("email");
+
+      if (accessToken && email) {
+        const userInfo = await getUserInfo();
+        if (userInfo.needPasswordChange) {
+          return NextResponse.next();
+        } else {
+          return NextResponse.redirect(
+            new URL(
+              getDefaultDashboardRoute(userRole as UserRole),
+              request.url,
+            ),
+          );
+        }
+      }
+
+      if (email) {
+        return NextResponse.next();
+      }
+
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
     if (routeOwner === null) {
       return NextResponse.next();
     }
@@ -99,13 +129,55 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    if(routeOwner === "COMMON"){
+    if (accessToken) {
+      const userInfo = await getUserInfo();
+
+      if (userInfo.emailVerified === false) {
+        if (pathname !== "/verify-email") {
+          const verifyEmailUrl = new URL("/verify-email", request.url);
+          verifyEmailUrl.searchParams.set("email", userInfo.email);
+          return NextResponse.redirect(verifyEmailUrl);
+        }
+
+        return NextResponse.next();
+      }
+
+      if (userInfo.emailVerified && pathname === "/verify-email") {
+        return NextResponse.redirect(
+          new URL(getDefaultDashboardRoute(userRole as UserRole), request.url),
+        );
+      }
+
+      if (userInfo.needPasswordChange) {
+        if (pathname !== "/reset-password") {
+          const resetPasswordUrl = new URL("/reset-password", request.url);
+          resetPasswordUrl.searchParams.set("email", userInfo.email);
+          return NextResponse.redirect(resetPasswordUrl);
+        }
+
+        return NextResponse.next();
+      }
+
+      if (!userInfo.needPasswordChange && pathname === "/reset-password") {
+        return NextResponse.redirect(
+          new URL(getDefaultDashboardRoute(userRole as UserRole), request.url),
+        );
+      }
+    }
+
+    if (routeOwner === "COMMON") {
       return NextResponse.next();
     }
 
-    if(routeOwner === "ADMIN" || routeOwner === "DOCTOR" || routeOwner === "PATIENT"){
-      if(routeOwner !== userRole){
-        return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole as UserRole), request.url))
+    if (
+      routeOwner === "ADMIN" ||
+      routeOwner === "DOCTOR" ||
+      routeOwner === "PATIENT"
+    ) {
+      if (routeOwner !== userRole) {
+        return NextResponse.redirect(
+          new URL(getDefaultDashboardRoute(userRole as UserRole), request.url),
+        );
       }
     }
 

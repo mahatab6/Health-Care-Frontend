@@ -8,4 +8,13 @@ export const loginZodSchema = z.object({
 })
 
 
+export const registerZodSchema = z.object({
+    name : z.string("User name is required"),
+    email : z.string("Enter your email"),
+    password : z.string().min(1, "Password is required").min(8, "Password must be at least 8 chareacters log")
+})
+
+
+export type IRegisterPayload = z.infer<typeof registerZodSchema>
+
 export type ILoginPayload = z.infer<typeof loginZodSchema>

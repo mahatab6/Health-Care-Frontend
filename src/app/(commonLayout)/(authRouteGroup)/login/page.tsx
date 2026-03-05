@@ -1,4 +1,5 @@
-import LoingForm from '@/components/modules/Auth/LoingForm'
+
+import LoingForm from '@/components/modules/Auth/loingForm';
 import React from 'react'
 
 interface LoginParams {
