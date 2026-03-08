@@ -1,4 +1,3 @@
-"use client"
 
 import {
   DropdownMenu,
@@ -10,9 +9,29 @@ import {
 import { Button } from "@/components/ui/button"
 import { User } from "lucide-react"
 import { UserInfo } from "@/types/user.types"
+import { toast } from "sonner"
+import logoutAction from "../Auth/logoutAction"
+import { redirect } from "next/navigation"
+
+
+
 
 interface Props {
   userInfo: UserInfo
+}
+
+
+const handleLogout = async () => {
+  const toastId = toast.loading("Logging out...");
+
+  const response = await logoutAction();
+  
+  if (response?.success) {
+    toast.success("Logged out successfully", { id: toastId });
+    redirect("/")
+  } else {
+    toast.error("Failed to logout.", { id: toastId });
+  }
 }
 
 const UserDropdown = ({ userInfo }: Props) => {
@@ -35,8 +54,8 @@ const UserDropdown = ({ userInfo }: Props) => {
           Settings
         </DropdownMenuItem>
 
-        <DropdownMenuItem>
-          Logout
+        <DropdownMenuItem onClick={() => {handleLogout()}}>
+            Logout
         </DropdownMenuItem>
 
       </DropdownMenuContent>
