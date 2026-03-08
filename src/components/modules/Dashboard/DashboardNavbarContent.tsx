@@ -1,55 +1,41 @@
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+"use client"
+
 import { NavSection } from "@/types/dashboardtypes"
 import { UserInfo } from "@/types/user.types"
-import { Menu, Search } from "lucide-react"
-import { useState } from "react"
-import DashboardMobileSidebar from "./DashboardMobileSidebar"
-import { Input } from "@/components/ui/input"
+import DashboardMobileMenu from "./DashboardMobileMenu"
+import DashboardSearch from "./DashboardSearch"
+import DashboardActions from "./DashboardActions"
 
-interface DashboardNavbarContent {
-    userInfo: UserInfo,
-    navItems: NavSection[],
-    dashboardHome: string
+
+interface DashboardNavbarContentProps {
+  userInfo: UserInfo
+  navItems: NavSection[]
+  dashboardHome: string
 }
 
+const DashboardNavbarContent = ({
+  userInfo,
+  navItems,
+  dashboardHome
+}: DashboardNavbarContentProps) => {
 
-const DashboardNavbarContent = ({userInfo, navItems, dashboardHome} : DashboardNavbarContent) => {
-
-    const [isOpen, setIsOpen] = useState(false)
   return (
-      <>
-    {/* mobile menu toggle button and menu */}
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger asChild className="md:hidden">
-            <Button variant={"outline"} size={"icon"}>
-                <Menu className="h-5 w-5"/>
-            </Button>
-        </SheetTrigger>
+    <div className="flex items-center gap-3 w-full border-b py-3.5 px-3">
 
-        <SheetContent side="left" className="w-64 p-0">
-            <DashboardMobileSidebar userInfo={userInfo} navItems={navItems} dashboardHome={dashboardHome}/>
-        </SheetContent>
-      </Sheet>
+      {/* Mobile Menu */}
+      <DashboardMobileMenu
+        userInfo={userInfo}
+        navItems={navItems}
+        dashboardHome={dashboardHome}
+      />
 
-    {/* Search component */}
-    <div className="flex-1 flex items-center justify-end gap-2">
-        <div className="relative w-full max-w-md hidden sm:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4"/>
-            <Input type="text" placeholder="Search........." className="pl-9 pr-4"/>
-        </div>
+      {/* Search */}
+      <DashboardSearch />
+
+      {/* Right Side */}
+      <DashboardActions userInfo={userInfo} />
+
     </div>
-
-
-    {/* Right side Actions */}
-
-    {/* Notification */}
-
-    {/* User Dropdown */}
-
-
-    
-    </>
   )
 }
 

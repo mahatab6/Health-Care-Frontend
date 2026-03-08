@@ -3,7 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatDistanceToNow } from "date-fns";
 import { Badge, Bell, Calendar, CheckCircle, Clock, UserPlus } from "lucide-react";
+import { useState } from "react";
 
 
 
@@ -76,50 +78,101 @@ const getNotificationIcon = (type : Notification["type"]) => {
 
 
 const NotificationDropdown = () => {
-  
-    const unreadCount = MOCK_NOTIFICATION.filter(notification => !notification.read).length
+    const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATION);
+    
+    const unreadCount = notifications.filter(n => !n.read).length;
+
+    const markAsRead = (id: string) => {
+        setNotifications(notifications.map(n => 
+            n.id === id ? { ...n, read: true } : n
+        ));
+    };
+
+    const markAllAsRead = () => {
+        setNotifications(notifications.map(n => ({ ...n, read: true })));
+    };
 
     return (
-    <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-            <Button variant={"outline"} size={"icon"} className="relative">
-                <Bell className="w-5 h-5"/>
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded full p-0 flex items-center justify-center">
-                    <span className="text-[10px]">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                </Badge>
-            </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel className="flex items-center justify-center">
-                <span>
-                    Notifications
-                </span>
-                {
-                    unreadCount > 0 && (
-                        <Badge className="ml-2">
-                            {unreadCount} new
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="relative">
+                    <Bell className="w-5 h-5 text-muted-foreground" />
+                    {unreadCount > 0 && (
+                        <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-destructive text-destructive-foreground border-2 border-background">
+                            <span className="text-[10px] font-bold">
+                                {unreadCount > 9 ? "9+" : unreadCount}
+                            </span>
                         </Badge>
-                    )
-                }
-            </DropdownMenuLabel>
+                    )}
+                </Button>
+            </DropdownMenuTrigger>
 
-            <DropdownMenuSeparator>
-                <ScrollArea className="h-75">
-                    {
-                        MOCK_NOTIFICATION.length > 0 ? (
-                            <DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-80 p-0">
+                <div className="flex items-center justify-between p-4 pb-2">
+                    <DropdownMenuLabel className="p-0 font-semibold">
+                        Notifications
+                    </DropdownMenuLabel>
+                    {unreadCount > 0 && (
+                        <Button 
+                            variant="ghost" 
+                            className="h-auto p-0 text-xs text-primary hover:bg-transparent"
+                            onClick={markAllAsRead}
+                        >
+                            Mark all as read
+                        </Button>
+                    )}
+                </div>
+                
+                <DropdownMenuSeparator />
 
+                <ScrollArea className="h-[350px]">
+                    {notifications.length > 0 ? (
+                        notifications.map((notification) => (
+                            <DropdownMenuItem 
+                                key={notification.id}
+                                className={`flex flex-col items-start gap-1 p-4 cursor-pointer focus:bg-accent ${!notification.read ? "bg-muted/40" : ""}`}
+                                onClick={() => markAsRead(notification.id)}
+                            >
+                                <div className="flex w-full items-start gap-3">
+                                    <div className="mt-1">
+                                        {getNotificationIcon(notification.type)}
+                                    </div>
+                                    <div className="flex-1 space-y-1">
+                                        <div className="flex items-center justify-between">
+                                            <p className={`text-sm font-medium leading-none ${!notification.read ? "font-bold" : ""}`}>
+                                                {notification.title}
+                                            </p>
+                                            {!notification.read && (
+                                                <div className="h-2 w-2 rounded-full bg-blue-600" />
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                            {notification.message}
+                                        </p>
+                                        <p className="text-[10px] text-muted-foreground">
+                                            {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
+                                        </p>
+                                    </div>
+                                </div>
                             </DropdownMenuItem>
-                        ) : ("")
-                    }
+                        ))
+                    ) : (
+                        <div className="p-8 text-center text-sm text-muted-foreground">
+                            No notifications yet.
+                        </div>
+                    )}
                 </ScrollArea>
-            </DropdownMenuSeparator>
-        </DropdownMenuContent>
-    </DropdownMenu>
-  )
+                
+                <DropdownMenuSeparator />
+                
+                <div className="p-2">
+                    <Button variant="ghost" className="w-full text-xs h-8">
+                        View all notifications
+                    </Button>
+                </div>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
 }
 
-export default NotificationDropdown
+export default NotificationDropdown;
