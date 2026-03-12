@@ -75,38 +75,42 @@ const AppointmentPieChart = ({
   }
 
   return (
-    <Card className="col-span-2">
+    <Card className="h-full">
       <CardHeader>
-            <CardTitle>{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie 
+              <Pie
                 data={formattedData}
                 cx="50%"
                 cy="50%"
-                outerRadius={80}
-                dataKey={"value"}
+                innerRadius={70} 
+                outerRadius={100}
+                paddingAngle={5}
+                dataKey="value"
               >
-                {formattedData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={CHART_COLORS[index % CHART_COLORS.length]}
+                {formattedData.map((_, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={CHART_COLORS[index % CHART_COLORS.length]} 
+                    stroke="none"
                   />
                 ))}
-
               </Pie>
-              <Tooltip/>
-              <Legend/>
+              <Tooltip 
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+              />
+              <Legend verticalAlign="bottom" height={36} iconType="circle" />
             </PieChart>
-
           </ResponsiveContainer>
-        </CardContent>
+        </div>
+      </CardContent>
     </Card>
-  )
+  );
 };
 
 export default AppointmentPieChart;

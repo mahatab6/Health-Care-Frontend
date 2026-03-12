@@ -1,5 +1,7 @@
 "use client";
 
+import AppointmentBarChart from "@/components/shared/AppointmentBarChart";
+import AppointmentPieChart from "@/components/shared/AppointmentPieChart";
 import StatsCard from "@/components/shared/StatsCard";
 import { getDashboardData } from "@/services/dashboard.services";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +14,8 @@ const AdminDashboardContent = () => {
   });
 
   const stats = adminDashboardData?.data;
-
+  console.log(stats?.piChartData)
+  console.log(stats?.barChartData)
   return (
     <div className="p-8 space-y-8">
       <div>
@@ -65,6 +68,23 @@ const AdminDashboardContent = () => {
           iconName="User"
           description="Number of total super Admin"
         />
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mt-6">
+        <div className="lg:col-span-4">
+          <AppointmentBarChart
+            data={stats?.barChartData || []}
+            title="Appointment Overview"
+            description="Monthly appointment volume for the current year"
+          />
+        </div>
+        <div className="lg:col-span-3">
+          <AppointmentPieChart
+            data={stats?.piChartData || []}
+            title="Distribution"
+            description="Status breakdown"
+          />
+        </div>
       </div>
     </div>
   );

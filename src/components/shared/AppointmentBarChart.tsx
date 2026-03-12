@@ -76,32 +76,42 @@ const AppointmentBarChart = ({
   }
 
   return (
-    <Card className="col-span-4">
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="flex items-center justify-center h-75">
-        <p className="text-sm text-muted-foreground">
-          Invalid data provided for the chart.
-        </p>
+      <CardContent>
+        <div className="h-[350px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={formattedData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+              <XAxis 
+                dataKey="month" 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                dy={10}
+              />
+              <YAxis 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+              />
+              <Tooltip 
+                cursor={{ fill: 'hsl(var(--muted)/0.4)' }}
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+              />
+              <Bar
+                dataKey="appointments"
+                fill="oklch(0.646 0.222 41.116)"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={50}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
-
-      <ResponsiveContainer height={"100%"} width={350}>
-        <BarChart data={formattedData}>
-          <CartesianGrid strokeDasharray={"3 3"} />
-          <XAxis tickLine={false} axisLine={false} dataKey={"month"} />
-          <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
-          <Tooltip />
-          <Legend />
-          <Bar
-            dataKey="appoinments"
-            fill="oklch(0.646 0.222 41.116)"
-            radius={[4, 4, 0, 0]}
-            maxBarSize={60}
-          />
-        </BarChart>
-      </ResponsiveContainer>
     </Card>
   );
 };
