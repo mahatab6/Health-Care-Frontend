@@ -99,7 +99,7 @@ const NotificationDropdown = () => {
                     <Bell className="w-5 h-5 text-muted-foreground" />
                     {unreadCount > 0 && (
                         <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-destructive text-destructive-foreground border-2 border-background">
-                            <span className="text-[10px] font-bold">
+                            <span className="text-10px font-bold">
                                 {unreadCount > 9 ? "9+" : unreadCount}
                             </span>
                         </Badge>

@@ -16,11 +16,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { BarChartData } from "@/types/dashboardtypes";
 
-interface BarChartData {
-  month: Date;
-  count: number;
-}
+
 
 interface AppointmentBarChartProps {
   data: BarChartData[];
