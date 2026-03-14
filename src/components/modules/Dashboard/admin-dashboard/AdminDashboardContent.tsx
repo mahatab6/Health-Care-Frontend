@@ -10,12 +10,11 @@ const AdminDashboardContent = () => {
   const { data: adminDashboardData } = useQuery({
     queryKey: ["admin-dashboard-data"],
     queryFn: getDashboardData,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: "always",
   });
 
   const stats = adminDashboardData?.data;
-  console.log(stats?.piChartData)
-  console.log(stats?.barChartData)
+
   return (
     <div className="p-8 space-y-8">
       <div>
